@@ -1,0 +1,4 @@
+{
+  "authorized_users": [1176476598157967380],
+  "description": "Danh sách ID người dùng được phép sử dụng lệnh moderation. Thêm user ID vào mảng authorized_users."
+}

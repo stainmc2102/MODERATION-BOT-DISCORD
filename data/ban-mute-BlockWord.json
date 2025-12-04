@@ -1,0 +1,21 @@
+{
+  "blocked_words": {
+    "fuck": {"action": "ban", "time": "1d"},
+    "shit": {"action": "mute", "time": "1h"},
+    "bitch": {"action": "warn", "time": null}
+  },
+  "blocked_links": [
+    "discord.gg",
+    "discordapp.com/invite"
+  ],
+  "scam_domains": [
+    "discordgift.site",
+    "discord-nitro.gift",
+    "steamcommunity.ru",
+    "steampowered.ru",
+    "discordapp.co",
+    "discordgifts.com",
+    "discord-airdrop.com",
+    "discordnitro.gift"
+  ]
+}
