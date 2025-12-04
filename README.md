@@ -55,7 +55,7 @@ Phát hiện các loại spam:
 - **Tin nhắn quá dài**: >2000 ký tự
 - **Rate limit**: 10+ tin nhắn trong 5 giây
 
-**Hành động**: Xóa tin nhắn + Cảnh báo/Mute/Ghi log
+**Hành động**: Xóa tin nhắn + Cảnh báo/Mute (chỉ gửi 1 thông báo duy nhất)
 
 ### 4. **Chống Lừa Đảo & Token Logger** (Anti-Scam)
 - **Phát Hiện Token Discord**: Bans ngay lập tức
@@ -107,7 +107,8 @@ Cho phép một số đối tượng không bị ảnh hưởng bởi auto-mod:
 |------|-------|--------|
 | `/vrsetlog` | Đặt kênh ghi nhật ký | `channel` |
 | `/vrsetmutedrole` | Đặt role cho người bị cắt tiếng | `role` |
-| `/vrbypass` | Thêm/xóa bypass cho role/user/channel | `type`, `id` |
+| `/vrbypass` | Thêm bypass cho role/user/channel | `role?`, `user?`, `channel?` |
+| `/vrunbypass` | Xóa bypass cho role/user/channel | `role?`, `user?`, `channel?` |
 
 ### 📊 Lệnh Thông Tin (Info Commands)
 
@@ -153,12 +154,17 @@ Khi mute người dùng, bot sẽ gán role này cho họ.
 ### Quản Lý Bypass
 
 ```
-/vrbypass user 123456789           # Bypass cả auto-mod cho user ID
-/vrbypass role 456789123           # Bypass cho role ID
-/vrbypass channel 789123456        # Bypass cho channel ID
+/vrbypass user:@User               # Thêm bypass cho user (chọn từ danh sách)
+/vrbypass role:@Role               # Thêm bypass cho role (chọn từ danh sách)
+/vrbypass channel:#channel         # Thêm bypass cho channel (chọn từ danh sách)
 ```
 
-Chạy lại để xóa bypass.
+Xóa bypass:
+```
+/vrunbypass user:@User             # Xóa bypass cho user
+/vrunbypass role:@Role             # Xóa bypass cho role
+/vrunbypass channel:#channel       # Xóa bypass cho channel
+```
 
 ---
 
@@ -280,12 +286,12 @@ MODERATION-BOT-DISCORD/
 ### Ví Dụ 3: Bypass role từ auto-mod
 
 ```
-/vrbypass role 1234567890
+/vrbypass role:@Helper
 ```
 
-Giả sử `1234567890` là role ID của `@Helper`, thì:
+Kết quả:
 - Helper không bị kiểm duyệt tự động
-- Cảnh báo: Chạy lại lệnh để unbypass
+- Sử dụng `/vrunbypass role:@Helper` để xóa bypass
 
 ### Ví Dụ 4: Kiểm tra trạng thái
 
@@ -455,20 +461,7 @@ Khi phát hiện rate limit (10+ tin nhắn trong 5 giây):
 
 ---
 
-## 📝 Lịch Sử Thay Đổi
 
-**v1.0 (2024-12-03)**
-- ✅ Lệnh quản lý đầy đủ (Ban, Mute, Warn, UnBan, UnMute, UnWarn)
-- ✅ Kiểm duyệt tự động với hệ thống cảnh báo 3 cấp
-- ✅ Phát hiện spam (tin nhắn, emoji, mention, channel hop, etc)
-- ✅ Phát hiện scam & token logger
-- ✅ Chống link bị chặn
-- ✅ Ghi nhật ký toàn bộ hành động
-- ✅ Hệ thống bypass (user/role/channel)
-- ✅ Phân quyền dựa trên authorized_users.json
-- ✅ Interface slash commands tiếng Việt
-
----
 
 ## 📞 Hỗ Trợ & Đóng Góp
 

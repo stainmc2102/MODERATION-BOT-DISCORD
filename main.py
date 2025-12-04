@@ -76,69 +76,78 @@ class VRBot(commands.Bot):
 
 bot = VRBot()
 
-@bot.tree.command(name="vrhelp", description="Show all commands of CẢNH SÁT VIỆT REALM")
+@bot.tree.command(name="vrhelp", description="Hiển thị hướng dẫn sử dụng CẢNH SÁT VIỆT REALM")
 async def vrhelp(interaction: discord.Interaction):
     embed = discord.Embed(
-        title="📚 CẢNH SÁT VIỆT REALM - Command List",
-        description="Discord Moderation Bot with Auto Moderation features",
+        title="CẢNH SÁT VIỆT REALM - Hướng Dẫn",
+        description="Bot quản lý server Discord với tính năng kiểm duyệt tự động",
         color=discord.Color.blue()
     )
     
     embed.add_field(
-        name="🔨 Moderation Commands",
+        name="📋 THIẾT LẬP BAN ĐẦU",
         value=(
-            "`/vrban [user] [duration] [reason]` - Ban user\n"
-            "`/vrunban [user] [reason]` - UnBan user\n"
-            "`/vrmute [user] [duration] [reason]` - Mute user\n"
-            "`/vrunmute [user] [reason]` - UnMute user\n"
-            "`/vrwarn [user] [reason]` - Warn user\n"
-            "`/vrunwarn [user] [reason]` - UnWarn user"
+            "`/vrsetlog #channel` - Đặt kênh ghi log\n"
+            "`/vrsetmutedrole @role` - Đặt role muted\n"
+            "⚠️ Lưu ý: Thiết lập 2 lệnh này trước khi sử dụng bot"
         ),
         inline=False
     )
     
     embed.add_field(
-        name="⚙️ Configuration Commands",
+        name="🔨 LỆNH QUẢN LÝ",
         value=(
-            "`/vrsetlog [channel]` - Set log channel\n"
-            "`/vrsetmutedrole [role]` - Set muted role\n"
-            "`/vrbypass [type] [id]` - Add/Remove bypass"
+            "`/vrban @user [time] [lý do]` - Cấm người dùng\n"
+            "`/vrunban [user_id] [lý do]` - Gỡ cấm\n"
+            "`/vrmute @user [time] [lý do]` - Tắt tiếng\n"
+            "`/vrunmute @user [lý do]` - Gỡ tắt tiếng\n"
+            "`/vrwarn @user [lý do]` - Cảnh cáo\n"
+            "`/vrunwarn @user [lý do]` - Giảm cảnh cáo"
         ),
         inline=False
     )
     
     embed.add_field(
-        name="📊 Info Commands",
+        name="🛡️ QUẢN LÝ BYPASS",
         value=(
-            "`/vrhelp` - Show this help\n"
-            "`/vrstatus` - Check bot status"
+            "`/vrbypass user:@user` - Thêm bypass cho user\n"
+            "`/vrbypass role:@role` - Thêm bypass cho role\n"
+            "`/vrbypass channel:#channel` - Thêm bypass cho kênh\n"
+            "`/vrunbypass ...` - Xóa bypass"
         ),
         inline=False
     )
     
     embed.add_field(
-        name="🤖 Auto Moderation",
+        name="📊 THÔNG TIN",
         value=(
-            "• Auto Ban/Mute blocked words\n"
-            "• 3-Level Warning System (Warn → Mute → Ban)\n"
-            "• Anti-Spam & Anti-Flood\n"
-            "• Scam/Token Logger Detection\n"
-            "• Auto Delete Blocked Links"
+            "`/vrhelp` - Hiển thị hướng dẫn này\n"
+            "`/vrstatus` - Kiểm tra trạng thái bot và config"
         ),
         inline=False
     )
     
     embed.add_field(
-        name="⏱️ Duration Format",
+        name="🤖 TÍNH NĂNG TỰ ĐỘNG",
         value=(
-            "`s` - seconds | `m` - minutes | `h` - hours\n"
-            "`d` - days | `w` - weeks | `mo` - months\n"
-            "Example: `1d`, `2h`, `30m` | Empty = Permanent"
+            "• Chống Spam: 5+ tin/5s, spam emoji, mention, trùng lặp\n"
+            "• Chống Scam: Phát hiện token logger, link lừa đảo\n"
+            "• Hệ thống cảnh cáo 3 cấp:\n"
+            "  Lần 1: Cảnh cáo | Lần 2: Mute 10p | Lần 3: Ban 1 ngày"
         ),
         inline=False
     )
     
-    embed.set_footer(text="CẢNH SÁT VIỆT REALM | Discord Moderation Bot")
+    embed.add_field(
+        name="⏱️ ĐỊNH DẠNG THỜI GIAN",
+        value=(
+            "`s`=giây | `m`=phút | `h`=giờ | `d`=ngày | `w`=tuần | `mo`=tháng\n"
+            "Ví dụ: `30m`, `1h`, `7d` | Để trống = Vĩnh viễn"
+        ),
+        inline=False
+    )
+    
+    embed.set_footer(text="CẢNH SÁT VIỆT REALM | /vrstatus để kiểm tra config")
     
     await interaction.response.send_message(embed=embed)
 
