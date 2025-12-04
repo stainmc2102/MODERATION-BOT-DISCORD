@@ -1,20 +1,4 @@
 {
   "warnings": {
-    "1445278692761669725": {
-      "1394676231131365517": [
-        {
-          "reason": "Sử dụng từ cấm: bitch",
-          "moderator_id": "🤖 Auto Moderation",
-          "timestamp": "2025-12-03T09:09:58.989919",
-          "auto": true
-        },
-        {
-          "reason": "Gửi link bị cấm: discord.gg",
-          "moderator_id": "🤖 Anti-Link",
-          "timestamp": "2025-12-03T10:50:28.862002",
-          "auto": true
-        }
-      ]
-    }
   }
 }
