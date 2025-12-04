@@ -43,7 +43,7 @@ Bot quản lý máy chủ Discord chuyên nghiệp với các tính năng kiểm
   - Cảnh báo 1/3 → Chỉ cảnh báo
   - Cảnh báo 2/3 → Tự động mute 10 phút
   - Cảnh báo 3/3 → Tự động ban 1 ngày
-- **Tự Động Gỡ Hành Động**: Tự động unban/unmute khi hết thời gian
+- **Tự Động Gỡ Hành Động**: Tự động Unban/Unmute khi hết thời gian
 
 ### 3. **Chống Spam** (Anti-Spam Detection)
 Phát hiện các loại spam:
@@ -95,11 +95,11 @@ Cho phép một số đối tượng không bị ảnh hưởng bởi auto-mod:
 | Lệnh | Mô Tả | Tham Số | Ví Dụ |
 |------|-------|--------|-------|
 | `/vrban` | Cấm người dùng | `user`, `duration?`, `reason?` | `/vrban @user 7d Spam` |
-| `/vrunban` | Gỡ cấm | `user_id`, `reason?` | `/vrunban 123456789 Appeal` |
+| `/vrUnban` | Gỡ cấm | `user_id`, `reason?` | `/vrUnban 123456789 Appeal` |
 | `/vrmute` | Cắt tiếng (timeout + role) | `user`, `duration?`, `reason?` | `/vrmute @user 1h Spam` |
-| `/vrunmute` | Gỡ cắt tiếng | `user`, `reason?` | `/vrunmute @user Appeal` |
+| `/vrUnmute` | Gỡ cắt tiếng | `user`, `reason?` | `/vrUnmute @user Appeal` |
 | `/vrwarn` | Cảnh báo người dùng | `user`, `reason?` | `/vrwarn @user Spam` |
-| `/vrunwarn` | Xóa 1 cảnh báo | `user`, `reason?` | `/vrunwarn @user Appeal` |
+| `/vrUnwarn` | Xóa 1 cảnh báo | `user`, `reason?` | `/vrUnwarn @user Appeal` |
 
 ### ⚙️ Lệnh Cấu Hình (Configuration Commands)
 
@@ -183,14 +183,12 @@ pip install aiofiles discord-py>=2.6.4 python-dotenv>=1.2.1
 
 ### 3. Cấu Hình Token
 
-**Phương Pháp 1: Biến Môi Trường (Recommended)**
+**Biến Môi Trường (Require)**
 
 Tạo tệp `.env` trong thư mục gốc:
 ```env
 DISCORD_BOT_TOKEN=your_bot_token_here
 ```
-
-**Phương Pháp 2: Secrets (Replit/Online IDE)**
 
 Thêm vào Secrets với key `DISCORD_BOT_TOKEN`
 
@@ -264,9 +262,9 @@ MODERATION-BOT-DISCORD/
 
 **Kết quả**:
 - Xóa tất cả tin nhắn của người dùng
-- Ban 7 ngày (auto unban)
+- Ban 7 ngày (auto Unban)
 - Ghi log vào `#moderation-log`
-- Auto unban sau 7 ngày
+- Auto Unban sau 7 ngày
 
 ### Ví Dụ 2: Cảnh báo người dùng
 
@@ -440,7 +438,7 @@ Khi phát hiện rate limit (10+ tin nhắn trong 5 giây):
 ### Bot không phản hồi
 - Kiểm tra token trong `.env`
 - Kiểm tra bot có được invite vào server không
-- Kiểm tra bot permissions (Send Messages, Embed Links, Manage Messages, etc)
+- Kiểm tra bot permissions (Administrator)
 
 ### Lệnh không hiển thị
 - Chạy bot lại để sync slash commands
