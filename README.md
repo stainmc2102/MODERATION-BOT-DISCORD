@@ -96,8 +96,8 @@ Cho phép một số đối tượng không bị ảnh hưởng bởi auto-mod:
 |------|-------|--------|-------|
 | `/vrban` | Cấm người dùng | `user`, `duration?`, `reason?` | `/vrban @user 7d Spam` |
 | `/vrUnban` | Gỡ cấm | `user_id`, `reason?` | `/vrUnban 123456789 Appeal` |
-| `/vrmute` | Cắt tiếng (timeout + role) | `user`, `duration?`, `reason?` | `/vrmute @user 1h Spam` |
-| `/vrUnmute` | Gỡ cắt tiếng | `user`, `reason?` | `/vrUnmute @user Appeal` |
+| `/vrmute` | Tắt tiếng (timeout + role) | `user`, `duration?`, `reason?` | `/vrmute @user 1h Spam` |
+| `/vrUnmute` | Gỡ Tắt tiếng | `user`, `reason?` | `/vrUnmute @user Appeal` |
 | `/vrwarn` | Cảnh báo người dùng | `user`, `reason?` | `/vrwarn @user Spam` |
 | `/vrUnwarn` | Xóa 1 cảnh báo | `user`, `reason?` | `/vrUnwarn @user Appeal` |
 

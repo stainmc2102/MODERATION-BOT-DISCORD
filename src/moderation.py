@@ -492,21 +492,18 @@ class ModerationCog(commands.Cog):
         
         await interaction.response.send_message(embed=embed)
     
-    @app_commands.command(name="vrbypass", description="Thêm/xóa bypass cho role/user/channel")
+    @app_commands.command(name="vrbypass", description="Thêm bypass cho role/user/channel")
     @app_commands.describe(
-        target_type="Loại đối tượng bypass",
-        target="Role, User hoặc Channel ID"
+        role="Role cần bypass (tùy chọn)",
+        user="User cần bypass (tùy chọn)", 
+        channel="Channel cần bypass (tùy chọn)"
     )
-    @app_commands.choices(target_type=[
-        app_commands.Choice(name="Role", value="role"),
-        app_commands.Choice(name="User", value="user"),
-        app_commands.Choice(name="Channel", value="channel")
-    ])
     async def vrbypass(
         self,
         interaction: discord.Interaction,
-        target_type: str,
-        target: str
+        role: Optional[discord.Role] = None,
+        user: Optional[discord.Member] = None,
+        channel: Optional[discord.TextChannel] = None
     ):
         if not await self.is_authorized(interaction.user.id):
             await interaction.response.send_message(
@@ -515,34 +512,118 @@ class ModerationCog(commands.Cog):
             )
             return
         
-        try:
-            target_id = int(target.strip("<@&#>"))
-        except ValueError:
+        if not role and not user and not channel:
             await interaction.response.send_message(
-                embed=EmbedBuilder.error("ID không hợp lệ."),
+                embed=EmbedBuilder.error("Vui lòng chọn ít nhất một đối tượng (role, user hoặc channel)."),
                 ephemeral=True
             )
             return
         
+        if not interaction.guild:
+            return
+        
         config = await self.get_guild_config(interaction.guild.id)
-        bypass_key = f"bypass_{target_type}s"
+        added = []
         
-        if bypass_key not in config:
-            config[bypass_key] = []
+        if role:
+            if "bypass_roles" not in config:
+                config["bypass_roles"] = []
+            if role.id not in config["bypass_roles"]:
+                config["bypass_roles"].append(role.id)
+                added.append(f"Role: {role.mention}")
         
-        if target_id in config[bypass_key]:
-            config[bypass_key].remove(target_id)
-            action = "xóa khỏi"
-        else:
-            config[bypass_key].append(target_id)
-            action = "thêm vào"
+        if user:
+            if "bypass_users" not in config:
+                config["bypass_users"] = []
+            if user.id not in config["bypass_users"]:
+                config["bypass_users"].append(user.id)
+                added.append(f"User: {user.mention}")
+        
+        if channel:
+            if "bypass_channels" not in config:
+                config["bypass_channels"] = []
+            if channel.id not in config["bypass_channels"]:
+                config["bypass_channels"].append(channel.id)
+                added.append(f"Channel: {channel.mention}")
+        
+        if not added:
+            await interaction.response.send_message(
+                embed=EmbedBuilder.error("Các đối tượng đã có trong danh sách bypass."),
+                ephemeral=True
+            )
+            return
         
         await self.save_guild_config(interaction.guild.id, config)
         
-        type_names = {"role": "Role", "user": "User", "channel": "Channel"}
         embed = EmbedBuilder.config_update(
-            f"Bypass {type_names[target_type]}",
-            f"Đã {action} danh sách bypass: {target_id}",
+            "Bypass",
+            f"Đã thêm vào danh sách bypass:\n" + "\n".join(added),
+            interaction.user
+        )
+        
+        await interaction.response.send_message(embed=embed)
+        await self.send_log(interaction.guild, embed)
+    
+    @app_commands.command(name="vrunbypass", description="Xóa bypass cho role/user/channel")
+    @app_commands.describe(
+        role="Role cần xóa bypass (tùy chọn)",
+        user="User cần xóa bypass (tùy chọn)",
+        channel="Channel cần xóa bypass (tùy chọn)"
+    )
+    async def vrunbypass(
+        self,
+        interaction: discord.Interaction,
+        role: Optional[discord.Role] = None,
+        user: Optional[discord.Member] = None,
+        channel: Optional[discord.TextChannel] = None
+    ):
+        if not await self.is_authorized(interaction.user.id):
+            await interaction.response.send_message(
+                embed=EmbedBuilder.error("Bạn không có quyền sử dụng lệnh này."),
+                ephemeral=True
+            )
+            return
+        
+        if not role and not user and not channel:
+            await interaction.response.send_message(
+                embed=EmbedBuilder.error("Vui lòng chọn ít nhất một đối tượng (role, user hoặc channel)."),
+                ephemeral=True
+            )
+            return
+        
+        if not interaction.guild:
+            return
+        
+        config = await self.get_guild_config(interaction.guild.id)
+        removed = []
+        
+        if role:
+            if "bypass_roles" in config and role.id in config["bypass_roles"]:
+                config["bypass_roles"].remove(role.id)
+                removed.append(f"Role: {role.mention}")
+        
+        if user:
+            if "bypass_users" in config and user.id in config["bypass_users"]:
+                config["bypass_users"].remove(user.id)
+                removed.append(f"User: {user.mention}")
+        
+        if channel:
+            if "bypass_channels" in config and channel.id in config["bypass_channels"]:
+                config["bypass_channels"].remove(channel.id)
+                removed.append(f"Channel: {channel.mention}")
+        
+        if not removed:
+            await interaction.response.send_message(
+                embed=EmbedBuilder.error("Các đối tượng không có trong danh sách bypass."),
+                ephemeral=True
+            )
+            return
+        
+        await self.save_guild_config(interaction.guild.id, config)
+        
+        embed = EmbedBuilder.config_update(
+            "Xóa Bypass",
+            f"Đã xóa khỏi danh sách bypass:\n" + "\n".join(removed),
             interaction.user
         )
         
@@ -610,6 +691,7 @@ class ModerationCog(commands.Cog):
     @vrwarn.error
     @vrunwarn.error
     @vrbypass.error
+    @vrunbypass.error
     @vrsetlog.error
     @vrsetmutedrole.error
     async def command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):

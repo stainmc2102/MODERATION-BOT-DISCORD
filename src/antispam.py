@@ -229,26 +229,21 @@ class AntiSpamCog(commands.Cog):
             self.tracker.set_rate_limit(message.guild.id, message.author.id, 60)
             await self.send_dm_warning(message.author, f"Bạn đang gửi tin nhắn quá nhanh. Vui lòng đợi 1 phút.")
             
-            action = "Bật slowmode cá nhân 1 phút"
+            embed = EmbedBuilder.spam_detection(
+                user=message.author,
+                spam_type=spam_type_str,
+                action="Bật slowmode cá nhân 1 phút",
+                details=details_str
+            )
+            await self.send_log(message.guild, embed)
         elif results["mention_spam"] or results["message_spam"]:
             automod = self.bot.get_cog("AutoModCog")
             if automod:
                 await automod.auto_mute_user(message.author, "5m", f"Auto spam detection: {spam_type_str}")
-            action = "Mute 5 phút"
         else:
             automod = self.bot.get_cog("AutoModCog")
             if automod:
                 await automod.add_warning(message.author, "🤖 CẢNH SÁT VIỆT REALM", f"{spam_type_str}", auto=True)
-            action = "Cảnh cáo"
-        
-        embed = EmbedBuilder.spam_detection(
-            user=message.author,
-            spam_type=spam_type_str,
-            action=action,
-            details=details_str
-        )
-        
-        await self.send_log(message.guild, embed)
         
         return True
 

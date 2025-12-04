@@ -124,18 +124,34 @@ class AutoModCog(commands.Cog):
             await self.send_log(user.guild, embed)
         
         if current_level == 2:
-            await self.auto_mute_user(user, "10m", f"Cảnh cáo lần 2: {reason}")
+            success = await self.auto_mute_user(user, "10m", f"Cảnh cáo lần 2: {reason}")
+            if not success and interaction:
+                try:
+                    await interaction.followup.send(
+                        embed=EmbedBuilder.error(f"Không thể tự động mute {user.mention} - kiểm tra quyền bot."),
+                        ephemeral=True
+                    )
+                except discord.HTTPException:
+                    pass
         elif current_level == 3:
-            await self.auto_ban_user(user, "1d", f"Cảnh cáo lần 3: {reason}")
+            success = await self.auto_ban_user(user, "1d", f"Cảnh cáo lần 3: {reason}")
+            if not success and interaction:
+                try:
+                    await interaction.followup.send(
+                        embed=EmbedBuilder.error(f"Không thể tự động ban {user.mention} - kiểm tra quyền bot."),
+                        ephemeral=True
+                    )
+                except discord.HTTPException:
+                    pass
         
         return current_level
     
-    async def auto_mute_user(self, user: discord.Member, duration: str, reason: str):
+    async def auto_mute_user(self, user: discord.Member, duration: str, reason: str) -> bool:
         try:
             await self.apply_muted_role(user)
             
             timeout_seconds = parse_duration(duration) if duration else 2419200
-            timeout_until = discord.utils.utcnow() + timedelta(seconds=min(timeout_seconds, 2419200))
+            timeout_until = discord.utils.utcnow() + timedelta(seconds=min(timeout_seconds or 2419200, 2419200))
             await user.timeout(timeout_until, reason=reason)
             
             ban_mute_data = await JSONStorage.load("ban-mute.json")
@@ -164,13 +180,20 @@ class AutoModCog(commands.Cog):
             )
             
             await self.send_log(user.guild, embed)
+            return True
             
         except discord.Forbidden:
-            pass
+            error_embed = EmbedBuilder.error(f"Không thể mute {user.mention} - Thiếu quyền hoặc role cao hơn bot.")
+            await self.send_log(user.guild, error_embed)
+            return False
+        except Exception as e:
+            error_embed = EmbedBuilder.error(f"Lỗi khi mute {user.mention}: {str(e)}")
+            await self.send_log(user.guild, error_embed)
+            return False
     
-    async def auto_ban_user(self, user: discord.Member, duration: str, reason: str):
+    async def auto_ban_user(self, user: discord.Member, duration: Optional[str], reason: str) -> bool:
         try:
-            await user.ban(reason=reason)
+            await user.ban(reason=reason, delete_message_days=1)
             
             asyncio.create_task(delete_user_messages(user.guild, user.id))
             
@@ -180,7 +203,7 @@ class AutoModCog(commands.Cog):
             if str(user.guild.id) not in ban_mute_data["bans"]:
                 ban_mute_data["bans"][str(user.guild.id)] = {}
             
-            expiry = get_expiry_time(duration)
+            expiry = get_expiry_time(duration) if duration else None
             ban_mute_data["bans"][str(user.guild.id)][str(user.id)] = {
                 "moderator_id": "Auto",
                 "reason": reason,
@@ -204,13 +227,24 @@ class AutoModCog(commands.Cog):
             if expiry:
                 delay = (expiry - datetime.utcnow()).total_seconds()
                 if delay > 0:
-                    await asyncio.sleep(delay)
-                    try:
-                        await user.guild.unban(discord.Object(id=user.id), reason="Hết thời hạn cấm")
-                    except discord.NotFound:
-                        pass
+                    asyncio.create_task(self._schedule_unban(user.guild, user.id, delay))
+            
+            return True
                         
         except discord.Forbidden:
+            error_embed = EmbedBuilder.error(f"Không thể ban {user.mention} - Thiếu quyền hoặc role cao hơn bot.")
+            await self.send_log(user.guild, error_embed)
+            return False
+        except Exception as e:
+            error_embed = EmbedBuilder.error(f"Lỗi khi ban {user.mention}: {str(e)}")
+            await self.send_log(user.guild, error_embed)
+            return False
+    
+    async def _schedule_unban(self, guild: discord.Guild, user_id: int, delay: float):
+        await asyncio.sleep(delay)
+        try:
+            await guild.unban(discord.Object(id=user_id), reason="Hết thời hạn cấm")
+        except discord.NotFound:
             pass
     
     async def check_blocked_words(self, message: discord.Message) -> bool:

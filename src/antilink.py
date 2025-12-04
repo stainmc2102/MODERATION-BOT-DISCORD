@@ -119,18 +119,18 @@ class AntiLinkCog(commands.Cog):
                             f"Gửi link bị cấm: {blocked}",
                             auto=True
                         )
+                    else:
+                        embed = discord.Embed(
+                            title="🔗 Phát Hiện Link Cấm",
+                            color=discord.Color.orange(),
+                            timestamp=datetime.utcnow()
+                        )
+                        embed.add_field(name="👤 Người dùng", value=f"{message.author.mention}", inline=True)
+                        embed.add_field(name="📍 Kênh", value=f"{message.channel.mention}", inline=True)
+                        embed.add_field(name="🔗 Link phát hiện", value=f"||{url[:100]}...||" if len(url) > 100 else f"||{url}||", inline=False)
+                        embed.add_field(name="⚡ Hành động", value="Xóa tin nhắn", inline=False)
+                        await self.send_log(message.guild, embed)
                     
-                    embed = discord.Embed(
-                        title="🔗 Phát Hiện Link Cấm",
-                        color=discord.Color.orange(),
-                        timestamp=datetime.utcnow()
-                    )
-                    embed.add_field(name="👤 Người dùng", value=f"{message.author.mention}", inline=True)
-                    embed.add_field(name="📍 Kênh", value=f"{message.channel.mention}", inline=True)
-                    embed.add_field(name="🔗 Link phát hiện", value=f"||{url[:100]}...||" if len(url) > 100 else f"||{url}||", inline=False)
-                    embed.add_field(name="⚡ Hành động", value="Xóa tin nhắn + Cảnh cáo", inline=False)
-                    
-                    await self.send_log(message.guild, embed)
                     return True
         
         return False
@@ -155,14 +155,14 @@ class AntiLinkCog(commands.Cog):
                     None,
                     "Gửi nội dung chứa Discord token - Nghi ngờ token logger"
                 )
+            else:
+                embed = EmbedBuilder.scam_detection(
+                    user=message.author,
+                    content="[Token detected - content hidden for security]",
+                    action="Phát hiện token (AutoMod không khả dụng)"
+                )
+                await self.send_log(message.guild, embed)
             
-            embed = EmbedBuilder.scam_detection(
-                user=message.author,
-                content="[Token detected - content hidden for security]",
-                action="Ban vĩnh viễn"
-            )
-            
-            await self.send_log(message.guild, embed)
             return True
         
         urls = self.extract_urls(message.content)
@@ -184,14 +184,14 @@ class AntiLinkCog(commands.Cog):
                             "7d",
                             f"Gửi link scam: {domain}"
                         )
+                    else:
+                        embed = EmbedBuilder.scam_detection(
+                            user=message.author,
+                            content=f"Link scam phát hiện: {domain}",
+                            action="Phát hiện scam (AutoMod không khả dụng)"
+                        )
+                        await self.send_log(message.guild, embed)
                     
-                    embed = EmbedBuilder.scam_detection(
-                        user=message.author,
-                        content=f"Link scam phát hiện: {domain}",
-                        action="Ban 7 ngày"
-                    )
-                    
-                    await self.send_log(message.guild, embed)
                     return True
         
         if self.contains_suspicious_content(message.content) and urls:
@@ -207,14 +207,14 @@ class AntiLinkCog(commands.Cog):
                     "1h",
                     "Nghi ngờ gửi nội dung lừa đảo"
                 )
+            else:
+                embed = EmbedBuilder.scam_detection(
+                    user=message.author,
+                    content=message.content,
+                    action="Nghi ngờ lừa đảo (AutoMod không khả dụng)"
+                )
+                await self.send_log(message.guild, embed)
             
-            embed = EmbedBuilder.scam_detection(
-                user=message.author,
-                content=message.content,
-                action="Mute 1 giờ - Đang điều tra"
-            )
-            
-            await self.send_log(message.guild, embed)
             return True
         
         return False
